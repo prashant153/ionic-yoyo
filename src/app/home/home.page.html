@@ -1,0 +1,117 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      Home
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-card class="welcome-card">
+      <ion-card-header>
+        <ion-card-title>Yo-Yo Intermittent Recovery Test </ion-card-title>
+        <ion-card-subtitle>(level 1)</ion-card-subtitle>
+      </ion-card-header>
+      <ion-img src="/assets/running.jpg"></ion-img>
+      <ion-card-content>
+        <app-progress  [score]='score'></app-progress>
+        <!-- <ion-progress-bar value={{progress}}></ion-progress-bar> 
+         <p>Click below to start.</p>
+        <ion-button expand="block" (click)="onTimerClick()">Start</ion-button> -->
+      </ion-card-content> 
+      <ion-grid >        
+          <div style="width: 100%; text-align: center; ">
+            <h2>SCORES</h2>
+          </div>
+      <!-- <ion-label text-center>Scores</ion-label> -->
+        <ion-row>
+          <ion-col size="6">               
+            <ion-card-content text-center>
+              <p>Speed Level</p>
+                <ion-item lines="none">
+                  <ion-label text-center>{{scoreSpeedLevel}}</ion-label>                  
+                </ion-item>
+            </ion-card-content>                           
+          </ion-col>
+          <ion-col size="6" >               
+            <ion-card-content text-center>
+              <p>Shuttle Number</p>
+                <ion-item lines="none">
+                  <ion-label text-center>{{scoreShuttleNumber}}</ion-label>                  
+                </ion-item>
+            </ion-card-content>                           
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">               
+            <ion-card-content text-center>
+              <p>Speed (km/hr)</p>
+                <ion-item lines="none">
+                  <ion-label text-center>{{scoreSpeed}}</ion-label>                  
+                </ion-item>
+            </ion-card-content>                           
+          </ion-col>
+          <ion-col size="6" >               
+            <ion-card-content text-center>
+              <p>Level Time (s)</p>
+                <ion-item lines="none">
+                  <ion-label text-center>{{scoreLevelTime}}</ion-label>                  
+                </ion-item>
+            </ion-card-content>                           
+          </ion-col>
+        </ion-row>    
+        <ion-row>
+          <ion-col size="6">               
+            <ion-card-content text-center>
+              <p>Accumulated shuttle distance (m)</p>
+                <ion-item lines="none">
+                  <ion-label text-center>{{scoreShuttleDist}}</ion-label>                  
+                </ion-item>
+            </ion-card-content>                           
+          </ion-col>
+          <ion-col size="6" >               
+            <ion-card-content text-center>
+              <p>Cumulative Time - with recovery period (s)</p>
+                <ion-item lines="none">
+                  <ion-label text-center>{{scoreCumulativeTime}}</ion-label>                  
+                </ion-item>
+            </ion-card-content>                           
+          </ion-col>
+        </ion-row>          
+        <ion-row>
+          <ion-col size="6" offset="3">               
+            <ion-card-content text-center>
+              <p>Approx. VO<sup>2</sup> max(mL/min/kg)</p>
+                <ion-item lines="none">
+                  <ion-label text-center>{{scoreVo2Max}}</ion-label>
+                </ion-item>
+            </ion-card-content>                           
+          </ion-col>          
+        </ion-row>        
+        </ion-grid> 
+    </ion-card>
+    <!-- <ion-list lines="none">
+      <ion-list-header>
+        <ion-label>Resources</ion-label>
+      </ion-list-header>
+      <ion-item href="https://ionicframework.com/docs/">
+        <ion-icon slot="start" color="medium" name="book"></ion-icon>
+        <ion-label>Ionic Documentation</ion-label>
+      </ion-item>
+      <ion-item href="https://ionicframework.com/docs/building/scaffolding">
+        <ion-icon slot="start" color="medium" name="build"></ion-icon>
+        <ion-label>Scaffold Out Your App</ion-label>
+      </ion-item>
+      <ion-item href="https://ionicframework.com/docs/layout/structure">
+        <ion-icon slot="start" color="medium" name="grid"></ion-icon>
+        <ion-label>Change Your App Layout</ion-label>
+      </ion-item>
+      <ion-item href="https://ionicframework.com/docs/theming/basics">
+        <ion-icon slot="start" color="medium" name="color-fill"></ion-icon>
+        <ion-label>Theme Your App</ion-label>
+      </ion-item>
+    </ion-list> -->
+</ion-content>
