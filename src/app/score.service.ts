@@ -14,4 +14,8 @@ export class ScoreService {
   getScores(): Observable<IScore[]> {
     return of(SCORES);
   }
+
+  getScoresArray(): Observable<IScore>{
+    return from(SCORES);
+  }
 }

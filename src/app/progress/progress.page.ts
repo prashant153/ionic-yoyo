@@ -4,6 +4,7 @@ import { timer } from 'rxjs';
 import { takeUntil, take, map } from 'rxjs/operators';
 import { EventEmitter } from 'protractor';
 import { IScore } from '../iscore';
+import { ScoreService } from '../score.service';
 
 @Component({
   selector: 'app-progress',
@@ -17,7 +18,7 @@ export class ProgressPage implements OnInit, OnChanges {
   timeInterval: number = 0;
   shuttleTimer:number = 0;
   restTimer: number=0;
-  constructor() {
+  constructor(private scoreService: ScoreService) {
 
   }
 
@@ -36,7 +37,11 @@ export class ProgressPage implements OnInit, OnChanges {
   }
 
   onTimerClick(){
-    //TODO 1: change the button name to STOP
+
+    this.scoreService.getScoresArray().subscribe(
+      (s)=>{
+        this.timeInterval = s.levelTime *1000;
+            //TODO 1: change the button name to STOP
     //TODO 2: add 5 second delay
     
     timerCountdown(this.timeInterval);
@@ -81,14 +86,20 @@ export class ProgressPage implements OnInit, OnChanges {
             (error:any)=>console.log('error in rest countdown'),
             () =>{
               this.restTimer =0;
-            }
-          
+            }          
           )
         
         
       }
       
       );
+      },
+      (error)=> console.log('error On Timer Click:',error),
+      () =>{}
+      
+      )
+
+
   }
 
 
