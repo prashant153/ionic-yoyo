@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of,from } from 'rxjs';
+import { Observable, of,from,forkJoin } from 'rxjs';
 
 import { IScore } from "./iscore";
 import { SCORES } from "./scores";
