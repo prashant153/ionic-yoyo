@@ -5,6 +5,7 @@ import { takeUntil, take, map, toArray, concatAll, switchMap, flatMap } from 'rx
 import { EventEmitter } from 'protractor';
 import { IScore } from '../iscore';
 import { ScoreService } from '../score.service';
+import { async } from 'q';
 
 
 
@@ -140,7 +141,7 @@ export class ProgressPage implements OnInit, OnChanges {
   //   complete: () => console.log('Observer got a complete notification'),
   // };
 
-     onTimerClick() {
+   onTimerClick() {
 
 
     //#region forEach
@@ -292,64 +293,79 @@ export class ProgressPage implements OnInit, OnChanges {
     //#endregion array
 
     //#region asyncAwait
+    (async()=>{
+
+   
     for (let index = 0; index < this.scoreArray.length; index++) {
-      this.scoreService.getScores().subscribe(
+    await   this.scoreService.getScores().subscribe(
         async (s) =>{
           console.log(s[index]);
           
-           
-              
-        this.timeInterval = s[index].levelTime * 1000;
-        //TODO 1: change the button name to STOP
-        //TODO 2: add 5 second delay
-  
-        var count = this.timeInterval / 1000;
-  
-        await countDownProgress(count);
-  
-        // this.timeInterval = this.score.levelTime * 1000;
-        console.log(this.timeInterval);
-  
-        const progressBar = timer(0, (this.timeInterval) / 100);
-        const stopper = timer(this.timeInterval);
-  
-  
-  
-        await  progressBar.pipe(
-          takeUntil(stopper))
-          .subscribe(n => {
-            console.log(n);
-            this.progress = (n + 1) / 100;
-            console.log(this.progress);
-            //start timer countdown     
-            this.shuttleTimer = ((((100 - n) / 100) * this.timeInterval / 1000) - this.timeInterval / 100000);
-          },
-            (error: any) => console.log('error in progress bar component'),
-            async () => {
-              this.progress = 0;
-              console.log('Completed progress bar');
-              //TODO 3: Start rest timer countdown
-  
-              var restCountdown = timer(0, 1000);
-              var restStopper = timer(10000);
-               await restCountdown.pipe(
-                takeUntil(restStopper))
-                .subscribe(r =>
-                  this.restTimer = 10 - r,
-                  (error: any) => console.log('error in rest countdown'),
-                  () => {
-                    this.restTimer = 0;
-                  }
-                )
-  
-  
-            }
-          );
+           await (async(s) =>{
+            console.log(this);
+            
+              this.timeInterval = s.levelTime * 1000;
+              //TODO 1: change the button name to STOP
+              //TODO 2: add 5 second delay
+        
+              var count = this.timeInterval / 1000;
+        
+              await (async (count)=> {
+                const timerCountdown = timer(0, 1000).pipe(
+                  take(count),
+                  map(() => --count));
           
+                 await timerCountdown.subscribe(
+                  t => this.shuttleTimer = t
+                );
+              }  )(count);
+        
+              // this.timeInterval = this.score.levelTime * 1000;
+              console.log(this.timeInterval);
+        
+              const progressBar = timer(0, (this.timeInterval) / 100);
+              const stopper = timer(this.timeInterval);
+        
+        
+        
+               await progressBar.pipe(
+                takeUntil(stopper))
+                .subscribe(n => {
+                  console.log(n);
+                  this.progress = (n + 1) / 100;
+                  console.log(this.progress);
+                  //start timer countdown     
+                  this.shuttleTimer = ((((100 - n) / 100) * this.timeInterval / 1000) - this.timeInterval / 100000);
+                },
+                  (error: any) => console.log('error in progress bar component'),
+                  async () => {
+                    this.progress = 0;
+                    console.log('Completed progress bar');
+                    //TODO 3: Start rest timer countdown
+        
+                    var restCountdown = timer(0, 1000);
+                    var restStopper = timer(10000);
+                     await restCountdown.pipe(
+                      takeUntil(restStopper))
+                      .subscribe(r =>
+                        this.restTimer = 10 - r,
+                        (error: any) => console.log('error in rest countdown'),
+                        () => {
+                          this.restTimer = 0;
+                        }
+                      )
+        
+        
+                  }
+                );
+            
+          }  )(s[index]);
+      
         }  
       )
     } 
-   //#endregion asyncAwait
+  })();
+    //#endregion asyncAwait
     //#region demo
     
     // function sleep(ms) {
@@ -373,21 +389,8 @@ export class ProgressPage implements OnInit, OnChanges {
 
     //#endregion demo
       
-     function timerFunc(s:IScore = this.score) {
-  
-
-      
-    }  
-
-    async function countDownProgress(count:number) {
-      const timerCountdown = timer(0, 1000).pipe(
-        take(count),
-        map(() => --count));
-
-       await timerCountdown.subscribe(
-        t => this.shuttleTimer = t
-      );
-    }  
+     
+    
 
   }
   
