@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnChanges, Output, ViewChild, ElementRef } from '@angular/core';
-import { timer, forkJoin, fromEvent } from 'rxjs';
+import { timer, forkJoin, fromEvent, Observable, of, from } from 'rxjs';
 
-import { takeUntil, take, map, toArray, concatAll, switchMap } from 'rxjs/operators';
+import { takeUntil, take, map, toArray, concatAll, switchMap, flatMap } from 'rxjs/operators';
 import { EventEmitter } from 'protractor';
 import { IScore } from '../iscore';
 import { ScoreService } from '../score.service';
@@ -19,7 +19,7 @@ export class ProgressPage implements OnInit, OnChanges {
 
   // @ViewChild('btnProgress', { read: ElementRef }) btnProgress : ElementRef;
 
-  scoreArray: IScore[] = [];
+  scoreArray: IScore[];
   progress: number = 0;
   @Input() score: IScore;
   timeInterval: number = 0;
@@ -76,139 +76,341 @@ export class ProgressPage implements OnInit, OnChanges {
   ngOnChanges(): void {
     console.log(this.timeInterval);
   }
-  myObserver = {
-    next: (s) => {
-      console.log(s);
-      console.log(s.levelTime);
+  // myObserver = {
+  //   next: (s) => {
+  //     console.log(s);
+  //     console.log(s.levelTime);
 
-      this.timeInterval = s.levelTime * 1000;
-      console.log(this.timeInterval);
-      //TODO 1: change the button name to STOP
-      //TODO 2: add 5 second delay
+  //     this.timeInterval = s.levelTime * 1000;
+  //     console.log(this.timeInterval);
+  //     //TODO 1: change the button name to STOP
+  //     //TODO 2: add 5 second delay
 
-      timerCountdown(this.timeInterval);
-      function timerCountdown(interval: number) {
+  //     timerCountdown(this.timeInterval);
+  //     function timerCountdown(interval: number) {
 
-        var count = interval / 1000;
-        timer(0, 1000).pipe(
-          take(count),
-          map(() => --count)).subscribe(
-            t => this.shuttleTimer = t
+  //       var count = interval / 1000;
+  //       timer(0, 1000).pipe(
+  //         take(count),
+  //         map(() => --count)).subscribe(
+  //           t => this.shuttleTimer = t
+  //         );
+
+  //     }
+  //     //this.timeInterval = this.score.levelTime * 1000;
+  //     console.log(this.timeInterval);
+
+  //     const progressBar = timer(0, (this.timeInterval) / 100);
+  //     const stopper = timer(this.timeInterval);
+
+
+  //     progressBar.pipe(
+  //       takeUntil(stopper))
+  //       .subscribe(n => {
+  //         console.log(n);
+  //         this.progress = (n + 1) / 100;
+  //         console.log(this.progress);
+  //         //start timer countdown     
+  //         this.shuttleTimer = ((((100 - n) / 100) * this.timeInterval / 1000) - this.timeInterval / 100000);
+  //       },
+  //         (error: any) => console.log('error in progress bar component'),
+  //         () => {
+  //           this.progress = 0;
+  //           console.log('Completed progress bar');
+  //           //TODO 3: Start rest timer countdown
+
+  //           var restCountdown = timer(0, 1000);
+  //           var restStopper = timer(10000);
+  //           restCountdown.pipe(
+  //             takeUntil(restStopper))
+  //             .subscribe(r =>
+  //               this.restTimer = 10 - r,
+  //               (error: any) => console.log('error in rest countdown'),
+  //               () => {
+  //                 this.restTimer = 0;
+  //               }
+  //             )
+
+
+  //         }
+
+  //       );
+  //   },
+  //   error: err => console.error('Observer got an error: ' + err),
+  //   complete: () => console.log('Observer got a complete notification'),
+  // };
+
+     onTimerClick() {
+
+
+    //#region forEach
+    // this.scoreArray.forEach(s => {
+    //   this.timeInterval = s.levelTime * 1000;
+    //   //TODO 1: change the button name to STOP
+    //   //TODO 2: add 5 second delay
+
+    //   var count = this.timeInterval / 1000;
+    //   const timerCountdown = timer(0, 1000).pipe(
+    //     take(count),
+    //     map(() => --count));
+
+    //   timerCountdown.subscribe(
+    //     t => this.shuttleTimer = t
+    //   );
+
+
+    //   // this.timeInterval = this.score.levelTime * 1000;
+    //   console.log(this.timeInterval);
+
+    //   const progressBar = timer(0, (this.timeInterval) / 100);
+    //   const stopper = timer(this.timeInterval);
+
+    //   // timerCountdown.pipe(
+    //   //   switchMap( t => t  )
+    //   // )
+
+    //   progressBar.pipe(
+    //     takeUntil(stopper))
+    //     .subscribe(n => {
+    //       console.log(n);
+    //       this.progress = (n + 1) / 100;
+    //       console.log(this.progress);
+    //       //start timer countdown     
+    //       this.shuttleTimer = ((((100 - n) / 100) * this.timeInterval / 1000) - this.timeInterval / 100000);
+    //     },
+    //       (error: any) => console.log('error in progress bar component'),
+    //       () => {
+    //         this.progress = 0;
+    //         console.log('Completed progress bar');
+    //         //TODO 3: Start rest timer countdown
+
+    //         var restCountdown = timer(0, 1000);
+    //         var restStopper = timer(10000);
+    //         restCountdown.pipe(
+    //           takeUntil(restStopper))
+    //           .subscribe(r =>
+    //             this.restTimer = 10 - r,
+    //             (error: any) => console.log('error in rest countdown'),
+    //             () => {
+    //               this.restTimer = 0;
+    //             }
+    //           )
+
+
+    //       }
+    //     );
+
+
+    // });
+
+    //#endregion forEach
+
+    //#region forked
+
+    // forkJoin(this.scoreService.getScoresArray()).subscribe(
+    // // this.scoreService.getScoresForked().subscribe(
+    //   (s) =>{
+
+    //     this.timeInterval = s[0].levelTime * 1000;
+    //     //TODO 1: change the button name to STOP
+    //     //TODO 2: add 5 second delay
+
+    //     var count = this.timeInterval / 1000;
+        
+    //     countDownProgress(count);
+
+    //     // this.timeInterval = this.score.levelTime * 1000;
+    //     console.log(this.timeInterval);
+    //     timerFunc(s[0]);
+
+    //   }
+
+    // )
+
+    //#endregion forked
+
+    //#region array  
+    // this.scoreService.getScoresArray().subscribe(
+    //   (s) => {
+
+    //     this.timeInterval = s.levelTime * 1000;
+    //     //TODO 1: change the button name to STOP
+    //     //TODO 2: add 5 second delay
+
+    //     var count = this.timeInterval / 1000;
+    //     const timerCountdown = timer(0, 1000).pipe(
+    //       take(count),
+    //       map(() => --count));
+
+    //     timerCountdown.subscribe(
+    //       t => this.shuttleTimer = t
+    //     );
+
+
+    //     // this.timeInterval = this.score.levelTime * 1000;
+    //     console.log(this.timeInterval);
+
+    //     const progressBar = timer(0, (this.timeInterval) / 100);
+    //     const stopper = timer(this.timeInterval);
+
+    //     // timerCountdown.pipe(
+    //     //   switchMap( t => t  )
+    //     // )
+
+    //     progressBar.pipe(
+    //       takeUntil(stopper))
+    //       .subscribe(n => {
+    //         console.log(n);
+    //         this.progress = (n + 1) / 100;
+    //         console.log(this.progress);
+    //         //start timer countdown     
+    //         this.shuttleTimer = ((((100 - n) / 100) * this.timeInterval / 1000) - this.timeInterval / 100000);
+    //       },
+    //         (error: any) => console.log('error in progress bar component'),
+    //         () => {
+    //           this.progress = 0;
+    //           console.log('Completed progress bar');
+    //           //TODO 3: Start rest timer countdown
+
+    //           var restCountdown = timer(0, 1000);
+    //           var restStopper = timer(10000);
+    //           restCountdown.pipe(
+    //             takeUntil(restStopper))
+    //             .subscribe(r =>
+    //               this.restTimer = 10 - r,
+    //               (error: any) => console.log('error in rest countdown'),
+    //               () => {
+    //                 this.restTimer = 0;
+    //               }
+    //             )
+
+
+    //         }
+    //       );
+    //   }
+    // )
+    //#endregion array
+
+    //#region asyncAwait
+    for (let index = 0; index < this.scoreArray.length; index++) {
+      this.scoreService.getScores().subscribe(
+        async (s) =>{
+          console.log(s[index]);
+          
+           
+              
+        this.timeInterval = s[index].levelTime * 1000;
+        //TODO 1: change the button name to STOP
+        //TODO 2: add 5 second delay
+  
+        var count = this.timeInterval / 1000;
+  
+        await countDownProgress(count);
+  
+        // this.timeInterval = this.score.levelTime * 1000;
+        console.log(this.timeInterval);
+  
+        const progressBar = timer(0, (this.timeInterval) / 100);
+        const stopper = timer(this.timeInterval);
+  
+  
+  
+        await  progressBar.pipe(
+          takeUntil(stopper))
+          .subscribe(n => {
+            console.log(n);
+            this.progress = (n + 1) / 100;
+            console.log(this.progress);
+            //start timer countdown     
+            this.shuttleTimer = ((((100 - n) / 100) * this.timeInterval / 1000) - this.timeInterval / 100000);
+          },
+            (error: any) => console.log('error in progress bar component'),
+            async () => {
+              this.progress = 0;
+              console.log('Completed progress bar');
+              //TODO 3: Start rest timer countdown
+  
+              var restCountdown = timer(0, 1000);
+              var restStopper = timer(10000);
+               await restCountdown.pipe(
+                takeUntil(restStopper))
+                .subscribe(r =>
+                  this.restTimer = 10 - r,
+                  (error: any) => console.log('error in rest countdown'),
+                  () => {
+                    this.restTimer = 0;
+                  }
+                )
+  
+  
+            }
           );
+          
+        }  
+      )
+    } 
+   //#endregion asyncAwait
+    //#region demo
+    
+    // function sleep(ms) {
+    //   return new Promise(resolve => setTimeout(resolve, ms));
+    // }
+    
+    // async function demo() {
+    //   console.log('Taking a break...');
+    //   await sleep(2000);
+    //   console.log('Two seconds later, showing sleep in a loop...');
+    
+    //   // Sleep in loop
+    //   for (let i = 0; i < 5; i ++) {
+    //   if (i === 3)
+    //     await sleep(2000);
+    //   console.log(i);
+    //   }
+    // }
+    
+    // demo();
 
-      }
-      //this.timeInterval = this.score.levelTime * 1000;
-      console.log(this.timeInterval);
+    //#endregion demo
+      
+     function timerFunc(s:IScore = this.score) {
+  
 
-      const progressBar = timer(0, (this.timeInterval) / 100);
-      const stopper = timer(this.timeInterval);
+      
+    }  
 
-
-      progressBar.pipe(
-        takeUntil(stopper))
-        .subscribe(n => {
-          console.log(n);
-          this.progress = (n + 1) / 100;
-          console.log(this.progress);
-          //start timer countdown     
-          this.shuttleTimer = ((((100 - n) / 100) * this.timeInterval / 1000) - this.timeInterval / 100000);
-        },
-          (error: any) => console.log('error in progress bar component'),
-          () => {
-            this.progress = 0;
-            console.log('Completed progress bar');
-            //TODO 3: Start rest timer countdown
-
-            var restCountdown = timer(0, 1000);
-            var restStopper = timer(10000);
-            restCountdown.pipe(
-              takeUntil(restStopper))
-              .subscribe(r =>
-                this.restTimer = 10 - r,
-                (error: any) => console.log('error in rest countdown'),
-                () => {
-                  this.restTimer = 0;
-                }
-              )
-
-
-          }
-
-        );
-    },
-    error: err => console.error('Observer got an error: ' + err),
-    complete: () => console.log('Observer got a complete notification'),
-  };
-  onTimerClick() {
-
-    this.scoreArray.forEach(s => {
-      this.timeInterval = s.levelTime * 1000;
-      //TODO 1: change the button name to STOP
-      //TODO 2: add 5 second delay
-
-      var count = this.timeInterval / 1000;
+    async function countDownProgress(count:number) {
       const timerCountdown = timer(0, 1000).pipe(
         take(count),
         map(() => --count));
 
-      timerCountdown.subscribe(
+       await timerCountdown.subscribe(
         t => this.shuttleTimer = t
       );
-
-
-      // this.timeInterval = this.score.levelTime * 1000;
-      console.log(this.timeInterval);
-
-      const progressBar = timer(0, (this.timeInterval) / 100);
-      const stopper = timer(this.timeInterval);
-
-      // timerCountdown.pipe(
-      //   switchMap( t => t  )
-      // )
-      progressBar.pipe(
-        takeUntil(stopper))
-        .subscribe(n => {
-          console.log(n);
-          this.progress = (n + 1) / 100;
-          console.log(this.progress);
-          //start timer countdown     
-          this.shuttleTimer = ((((100 - n) / 100) * this.timeInterval / 1000) - this.timeInterval / 100000);
-        },
-          (error: any) => console.log('error in progress bar component'),
-          () => {
-            this.progress = 0;
-            console.log('Completed progress bar');
-            //TODO 3: Start rest timer countdown
-
-            var restCountdown = timer(0, 1000);
-            var restStopper = timer(10000);
-            restCountdown.pipe(
-              takeUntil(restStopper))
-              .subscribe(r =>
-                this.restTimer = 10 - r,
-                (error: any) => console.log('error in rest countdown'),
-                () => {
-                  this.restTimer = 0;
-                }
-              )
-
-
-          }
-        );
-
-
-    });
-
-
-    // this.scoreService.getScoresArray().pipe()
-    // //  fromEvent(this.btnProgress.nativeElement,'click')
-    // .subscribe(
-    //   this.myObserver
-    // )
-
-
-
+    }  
 
   }
-
+  
 }
+
+  //#region myObserver
+  // this.scoreService.getScores().pipe(
+
+  // ) 
+  // //  fromEvent(this.btnProgress.nativeElement,'click')
+  // .subscribe(
+  //   this.myObserver
+  // )
+  //#endregion myObserver 
+
+
+
+
+
+
+
+
+
+
+
+

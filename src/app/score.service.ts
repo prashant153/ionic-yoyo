@@ -18,4 +18,8 @@ export class ScoreService {
   getScoresArray(): Observable<IScore>{
     return from(SCORES);
   }
+
+  getScoresForked(): Observable<IScore>{
+    return forkJoin(SCORES);
+  }
 }
